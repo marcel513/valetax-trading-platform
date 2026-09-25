@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from html import escape
 
 from fastapi import Cookie, Depends, FastAPI, Header, HTTPException, Request, Response
@@ -10,12 +11,13 @@ from .db import connect, migrate
 from .security import parse, stamp, utcnow
 from .strategy import ManualDemoProvider
 
-app = FastAPI(title="MT5 Demo Coordinator", docs_url=None, redoc_url=None)
-
-
-@app.on_event("startup")
-def startup():
+@asynccontextmanager
+async def lifespan(_app):
     migrate()
+    yield
+
+
+app = FastAPI(title="MT5 Demo Coordinator", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 
 class LinkIn(BaseModel):
@@ -145,6 +147,10 @@ def report(body: Report, account=Depends(ea_account)):
             raise HTTPException(404, "Signal not found")
         prior = db.execute("SELECT state FROM deliveries WHERE account_id=? AND signal_id=?", (account["id"], body.signal_id)).fetchone()
         if prior and prior["state"] in ("rejected", "closed"):
+            return {"accepted": True, "duplicate": True}
+        if prior and prior["state"] == "filled" and body.state != "closed":
+            return {"accepted": True, "duplicate": True}
+        if prior and prior["state"] == "submitted" and body.state == "submitted":
             return {"accepted": True, "duplicate": True}
         if body.state == "filled" and (not body.position_ticket or not body.broker_deal or body.price <= 0 or body.volume <= 0 or body.stop_loss <= 0):
             raise HTTPException(400, "Broker fill proof incomplete")

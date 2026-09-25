@@ -17,8 +17,6 @@ def inspect():
                 continue
             event(db, a["user_id"], a["id"], "ea_offline", "EA heartbeat overdue")
             alert(db, a["user_id"], f"تنبيه: انقطع اتصال EA للحساب #{a['id']} لأكثر من دقيقتين.")
-        if now.hour != 0:
-            return
         day = (now - timedelta(days=1)).date().isoformat()
         for u in db.execute("SELECT id FROM users WHERE private_chat_id IS NOT NULL").fetchall():
             key = f"daily:{day}"

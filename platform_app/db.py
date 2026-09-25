@@ -30,6 +30,9 @@ def migrate():
     with connect() as db:
         db.executescript("""
         PRAGMA journal_mode=WAL;
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+          version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
         CREATE TABLE IF NOT EXISTS users (
           id INTEGER PRIMARY KEY, telegram_id INTEGER NOT NULL UNIQUE,
           private_chat_id INTEGER, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -106,3 +109,4 @@ def migrate():
         CREATE INDEX IF NOT EXISTS idx_signals_expiry ON signals(expires_at);
         CREATE INDEX IF NOT EXISTS idx_alerts_pending ON alerts(sent_at);
         """)
+        db.execute("INSERT OR IGNORE INTO schema_migrations(version) VALUES(1)")
