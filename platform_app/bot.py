@@ -2,8 +2,10 @@
 import asyncio
 import logging
 import os
+import ssl
 
 import httpx
+import truststore
 from dotenv import load_dotenv
 
 from . import core
@@ -16,7 +18,9 @@ log = logging.getLogger(__name__)
 
 class Telegram:
     def __init__(self, token):
-        self.client = httpx.AsyncClient(base_url=f"https://api.telegram.org/bot{token}/", timeout=40)
+        system_ca = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        self.client = httpx.AsyncClient(base_url=f"https://api.telegram.org/bot{token}/", timeout=40,
+                                        verify=system_ca)
 
     async def call(self, method, payload):
         response = await self.client.post(method, json=payload)

@@ -195,7 +195,7 @@ def login(code: str):
     except ValueError as e:
         raise HTTPException(400, str(e)) from e
     response = RedirectResponse("/dashboard", status_code=303)
-    response.set_cookie("session", session, httponly=True, secure=os.getenv("BASE_URL", "").startswith("https://"), samesite="strict", max_age=43200)
+    response.set_cookie("session", session, httponly=True, secure=os.getenv("BASE_URL", "").startswith("https://"), samesite="lax", max_age=43200)
     return response
 
 

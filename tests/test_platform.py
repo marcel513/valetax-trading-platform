@@ -144,3 +144,14 @@ def test_bot_start_is_idempotent_and_stop_is_owned():
     assert "إيقاف" in response_for(1001, 1001, "/stop")
     with connect() as db:
         assert db.execute("SELECT enabled FROM risk_settings WHERE account_id=?", (account_id,)).fetchone()[0] == 0
+
+
+def test_telegram_web_login_cookie():
+    user_id = core.register_user(1001, 1001)
+    code = core.make_web_code(user_id)
+    client = TestClient(app)
+    response = client.get(f"/login/{code}", follow_redirects=False)
+    assert response.status_code == 303
+    assert "samesite=lax" in response.headers["set-cookie"].lower()
+    assert client.get("/dashboard").status_code == 200
+    assert client.get(f"/login/{code}").status_code == 400
