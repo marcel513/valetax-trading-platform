@@ -1,6 +1,6 @@
 // Demo-only coordinator EA. Live accounts are rejected in OnInit and OnTimer.
 #property strict
-#property version "1.000"
+#property version "1.001"
 #include <Trade/Trade.mqh>
 
 input string ServerBaseUrl = "https://your-server.example";
@@ -226,8 +226,15 @@ string CheckSignal(string side,double sl,double &price)
    if((fills & SYMBOL_FILLING_IOC)!=0) checkRequest.type_filling=ORDER_FILLING_IOC;
    else if((fills & SYMBOL_FILLING_FOK)!=0) checkRequest.type_filling=ORDER_FILLING_FOK;
    else checkRequest.type_filling=ORDER_FILLING_RETURN;
-   if(!OrderCheck(checkRequest,checkResult) || checkResult.retcode!=TRADE_RETCODE_DONE)
-      return "ORDER_CHECK_FAILED";
+   ResetLastError();
+   bool checked=OrderCheck(checkRequest,checkResult);
+   int checkError=GetLastError();
+   // A successful OrderCheck commonly returns retcode 0 ("Done"); it is not an OrderSend result.
+   if(!checked || (checkResult.retcode!=0 && checkResult.retcode!=TRADE_RETCODE_DONE))
+   {
+      Print("OrderCheck failed: MT5 error ",checkError," retcode ",checkResult.retcode," comment ",checkResult.comment);
+      return "ORDER_CHECK_FAILED_"+IntegerToString((int)checkResult.retcode);
+   }
    return "";
 }
 

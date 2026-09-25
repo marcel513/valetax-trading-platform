@@ -1,6 +1,6 @@
 # Valetax MT5 demo coordinator
 
-Multi-user **Demo-only** foundation with a Telegram bot, dashboard, API, and MT5 Expert Advisor. The final strategy and payments are absent. The platform never receives broker passwords or deposits. This prototype is not a production trading service. The EA rejects real accounts in code at startup and on every timer cycle; broker-side account attestation and broker order integration tests remain necessary.
+Multi-user **Demo-only** foundation with a Telegram bot, dashboard, API, and MT5 Expert Advisor. The final strategy and payments are absent. The platform never receives broker passwords or deposits. This prototype is not a production trading service. The EA rejects real accounts in code at startup and on every timer cycle; broker-side account attestation and broader broker order integration tests remain necessary. One Valetax Demo trade was opened and closed during the 2026-09-25 integration test; see [validation notes](docs/OPERATIONS.md).
 
 ## Architecture
 
