@@ -51,3 +51,5 @@ The server returns no signals if settings are off or subscription is expired/sus
 The `StrategyProvider` extension point is public; keep future proprietary SES logic in a private service or package. The present provider only accepts manually entered `DEMO_ONLY` XAU signals. Gold symbol suffixes and Cent/Standard/ECN contract differences are read from MT5 rather than hard coded. Payments are not configured: subscription state can be managed manually by an admin, but `/subscribe` does not charge or sell anything.
 
 Run `python -m pytest -q`. See [operations and limitations](docs/OPERATIONS.md) for VPS, backup, recovery, two-device Git use, the validated Demo connection, and remaining broker order tests.
+
+For a second device or a new Codex task, use the [Arabic handoff and continuation prompt](docs/HANDOFF_AR.md).
