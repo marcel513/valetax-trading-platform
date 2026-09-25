@@ -1,6 +1,6 @@
 # Valetax MT5 demo coordinator
 
-Multi-user **Demo-only** foundation with a Telegram bot, dashboard, API, and MT5 Expert Advisor. The final strategy and payments are absent. The platform never receives broker passwords or deposits. This prototype is not a production trading service. The EA rejects real accounts in code at startup and on every timer cycle; broker-side account attestation and MT5 integration tests remain necessary.
+Multi-user **Demo-only** foundation with a Telegram bot, dashboard, API, and MT5 Expert Advisor. The final strategy and payments are absent. The platform never receives broker passwords or deposits. This prototype is not a production trading service. The EA rejects real accounts in code at startup and on every timer cycle; broker-side account attestation and broker order integration tests remain necessary.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ flowchart TD
 3. Copy `.env.example` to `.env`. Set `DATABASE_PATH`, an HTTPS `BASE_URL`, and your numeric ID in `ADMIN_TELEGRAM_IDS` if you administer the system. Never commit `.env`.
 4. Create a bot with Telegram BotFather. Put its token into your local `.env` as `TELEGRAM_BOT_TOKEN`; never send it to a public chat or repository.
 5. In one terminal run `python -m uvicorn platform_app.api:app --host 127.0.0.1 --port 8000`; in another run `python -m platform_app.bot`. The API creates the database schema at startup.
-6. In the bot's **private** chat, send `/start`, then `/link`. The code expires in ten minutes. On desktop MT5, log in to a Valetax **Demo** account, compile `ea/ValetaxDemoEA.mq5` in MetaEditor, attach it to a chart, and set `ServerBaseUrl` plus `OneTimeLinkCode`. In MT5 **Tools → Options → Expert Advisors**, allow WebRequest for the exact HTTPS base URL. Remove the code from EA inputs after linking.
+6. On desktop MT5, log in to a Valetax **Demo** account and compile `ea/ValetaxDemoEA.mq5` in MetaEditor. In MT5 **Tools → Options → Expert Advisors**, check **Allow WebRequest for listed URL**, add the exact HTTPS base URL as a visible row in the list, and save. In the bot's **private** chat, send `/start`, then `/link`; the code expires in ten minutes. Attach the EA to a chart and set `ServerBaseUrl` plus `OneTimeLinkCode`. Keep `LocalPause=true`. After successful linking, remove the one-time code from EA inputs; the EA stores its account token locally.
 7. The EA starts with `LocalPause=true` and the server account also starts paused. Use `/dashboard` to set lot and risk limits, then explicitly unpause both for a Demo test. Admins can create a two-minute Demo signal at `/admin`. Use `/stop` or `LocalPause=true` to halt new entries.
 
 Local `http://127.0.0.1:8000` is for API tests only; the EA requires HTTPS with a valid certificate. Run MT5 desktop on a Windows PC or suitable VPS, not MT5 Web or mobile. The terminal must remain open and logged in.
@@ -50,4 +50,4 @@ The server returns no signals if settings are off or subscription is expired/sus
 
 The `StrategyProvider` extension point is public; keep future proprietary SES logic in a private service or package. The present provider only accepts manually entered `DEMO_ONLY` XAU signals. Gold symbol suffixes and Cent/Standard/ECN contract differences are read from MT5 rather than hard coded. Payments are not configured: subscription state can be managed manually by an admin, but `/subscribe` does not charge or sell anything.
 
-Run `python -m pytest -q`. See [operations and limitations](docs/OPERATIONS.md) for VPS, backup, recovery, two-device Git use, and unverified integration work.
+Run `python -m pytest -q`. See [operations and limitations](docs/OPERATIONS.md) for VPS, backup, recovery, two-device Git use, the validated Demo connection, and remaining broker order tests.

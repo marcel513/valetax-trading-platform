@@ -53,10 +53,11 @@ bool Request(string method,string path,string payload,string &answer,bool authen
    if(ArraySize(data)>0) ArrayResize(data,ArraySize(data)-1);
    ResetLastError();
    int status=WebRequest(method,ServerBaseUrl+path,headers,10000,data,result,responseHeaders);
-   answer=CharArrayToString(result,0,WHOLE_ARRAY,CP_UTF8);
+   int webError=GetLastError();
+   answer=(ArraySize(result)>0?CharArrayToString(result,0,ArraySize(result),CP_UTF8):"");
    if(status<200 || status>=300)
    {
-      Print("Coordinator request failed: HTTP ",status," MT5 error ",GetLastError());
+      Print("Coordinator request failed: HTTP ",status," MT5 error ",webError);
       return false;
    }
    return true;
