@@ -5,6 +5,7 @@ from html import escape
 from fastapi import Cookie, Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
 from . import core
 from .db import connect, migrate
@@ -13,6 +14,7 @@ from .strategy import ManualDemoProvider
 
 @asynccontextmanager
 async def lifespan(_app):
+    load_dotenv()
     migrate()
     yield
 
