@@ -16,7 +16,7 @@ The repository is public: either account can `git clone https://github.com/marce
 4. Use a small Demo lot and valid absolute stop loss. Verify broker retcode and deal, `orders`/`trades` records, private open alert, broker closure, close report, and private result.
 5. Restart the server and EA; confirm the UUID does not place a second order. Reconcile any incomplete broker result manually.
 
-MetaEditor, MT5, and a Valetax Demo account were unavailable during initial development. EA compilation and broker execution are **not verified**. A backend cannot independently prove an HTTP client's claim that an MT5 account is Demo; stronger broker-backed attestation or controlled EA distribution is needed for wider deployment.
+The Valetax MetaEditor compiled `ValetaxDemoEA.mq5` with **0 errors and 0 warnings**. A read-only connection to the open Valetax terminal confirmed Demo account mode, broker connectivity, and an account-specific `XAUUSD.vx` symbol that was not initially selected in Market Watch. The EA now searches the full broker catalogue and selects the matching symbol. A temporary Cloudflare Quick Tunnel exposes the local API over HTTPS for this session; its URL is intentionally not committed because it changes and is unsuitable for continuous operation. HTTPS EA/server communication and broker execution are **not yet verified**. No order was submitted. A backend cannot independently prove an HTTP client's claim that an MT5 account is Demo; stronger broker-backed attestation or controlled EA distribution is needed for wider deployment.
 
 ## Responsibilities and failures
 

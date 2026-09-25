@@ -34,6 +34,14 @@ def test_link_is_one_time_and_rejects_live():
         core.link_account(code, 124, "S", "demo", "USD", True)
 
 
+def test_linked_demo_can_be_locally_paused():
+    user = core.register_user(1001, 1001)
+    code = core.make_link_code(user)
+    account_id, _ = core.link_account(code, 125, "S", "demo", "USD", False)
+    with connect() as db:
+        assert db.execute("SELECT enabled FROM risk_settings WHERE account_id=?", (account_id,)).fetchone()[0] == 0
+
+
 def test_expired_code_and_duplicate_account():
     u1 = core.register_user(1001, 1001)
     u2 = core.register_user(1002, 1002)

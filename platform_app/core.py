@@ -25,7 +25,7 @@ def make_link_code(user_id):
 
 
 def link_account(code, login, server, account_type, currency, trade_allowed):
-    if not login or not server or not account_type or not currency or not trade_allowed:
+    if not login or not server or not account_type or not currency:
         raise ValueError("Incomplete MT5 account proof")
     if account_type.lower() != "demo":
         raise ValueError("Only MT5 demo accounts are supported")

@@ -1,6 +1,6 @@
 // Demo-only coordinator EA. Live accounts are rejected in OnInit and OnTimer.
 #property strict
-#property version "0.1"
+#property version "1.000"
 #include <Trade/Trade.mqh>
 
 input string ServerBaseUrl = "https://your-server.example";
@@ -86,15 +86,20 @@ void LoadToken()
 
 string DetectGold()
 {
-   // Broker names can have suffixes/prefixes. Inspect the actual Market Watch symbols.
-   int count=SymbolsTotal(true);
-   for(int i=0;i<count;i++)
+   // Prefer an already selected symbol, then search the broker's full symbol catalogue.
+   for(int pass=0;pass<2;pass++)
    {
-      string name=SymbolName(i,true);
-      string upper=name;
-      StringToUpper(upper);
-      if(StringFind(upper,"XAU")>=0 && StringFind(upper,"USD")>=0)
-         return name;
+      bool selectedOnly=(pass==0);
+      int count=SymbolsTotal(selectedOnly);
+      for(int i=0;i<count;i++)
+      {
+         string name=SymbolName(i,selectedOnly);
+         string upper=name;
+         StringToUpper(upper);
+         if(StringFind(upper,"XAU")>=0 && StringFind(upper,"USD")>=0 &&
+            SymbolInfoInteger(name,SYMBOL_TRADE_MODE)==SYMBOL_TRADE_MODE_FULL && SymbolSelect(name,true))
+            return name;
+      }
    }
    return "";
 }
@@ -105,7 +110,8 @@ bool Link()
    string json="{\"code\":\""+Esc(OneTimeLinkCode)+"\",\"login\":"+
       IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN))+",\"server\":\""+
       Esc(AccountInfoString(ACCOUNT_SERVER))+"\",\"account_type\":\"demo\",\"currency\":\""+
-      Esc(AccountInfoString(ACCOUNT_CURRENCY))+"\",\"trade_allowed\":true}";
+      Esc(AccountInfoString(ACCOUNT_CURRENCY))+"\",\"trade_allowed\":"+
+      (AccountInfoInteger(ACCOUNT_TRADE_ALLOWED)?"true":"false")+"}";
    string answer;
    if(!Request("POST","/api/ea/link",json,answer,false)) return false;
    eaToken=Field(answer,"ea_token");
