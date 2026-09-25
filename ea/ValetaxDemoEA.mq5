@@ -137,6 +137,7 @@ bool Heartbeat()
    string answer;
    if(!Request("POST","/api/ea/heartbeat",json,answer)) return false;
    serverEnabled=(Field(answer,"enabled")=="true");
+   if(Field(answer,"allowed_symbols")!="XAU") serverEnabled=false;
    configuredLot=StringToDouble(Field(answer,"lot"));
    maxPositions=(int)StringToInteger(Field(answer,"max_positions"));
    dailyLossLimit=StringToDouble(Field(answer,"daily_loss_limit"));
@@ -154,6 +155,12 @@ double TodayPlatformProfit()
       ulong deal=HistoryDealGetTicket(i);
       if((ulong)HistoryDealGetInteger(deal,DEAL_MAGIC)!=PlatformMagic) continue;
       total+=HistoryDealGetDouble(deal,DEAL_PROFIT)+HistoryDealGetDouble(deal,DEAL_COMMISSION)+HistoryDealGetDouble(deal,DEAL_SWAP);
+   }
+   for(int i=0;i<PositionsTotal();i++)
+   {
+      ulong ticket=PositionGetTicket(i);
+      if(ticket>0 && PositionSelectByTicket(ticket) && (ulong)PositionGetInteger(POSITION_MAGIC)==PlatformMagic)
+         total+=PositionGetDouble(POSITION_PROFIT)+PositionGetDouble(POSITION_SWAP);
    }
    return total;
 }
@@ -178,6 +185,7 @@ string CheckSignal(string side,double sl,double &price)
    if(SymbolInfoInteger(goldSymbol,SYMBOL_TRADE_MODE)!=SYMBOL_TRADE_MODE_FULL) return "MARKET_CLOSED_OR_RESTRICTED";
    MqlTick tick;
    if(!SymbolInfoTick(goldSymbol,tick) || tick.ask<=0 || tick.bid<=0) return "NO_QUOTES";
+   if(TimeCurrent()-tick.time>30) return "STALE_QUOTES";
    double point=SymbolInfoDouble(goldSymbol,SYMBOL_POINT);
    if(point<=0 || (tick.ask-tick.bid)/point>maxSpreadPoints) return "SPREAD_LIMIT";
    double minVol=SymbolInfoDouble(goldSymbol,SYMBOL_VOLUME_MIN);
@@ -197,6 +205,7 @@ string CheckSignal(string side,double sl,double &price)
    double tickValue=SymbolInfoDouble(goldSymbol,SYMBOL_TRADE_TICK_VALUE);
    double contract=SymbolInfoDouble(goldSymbol,SYMBOL_TRADE_CONTRACT_SIZE);
    if(tickSize<=0 || tickValue<=0 || contract<=0) return "INVALID_CONTRACT_SPEC";
+   if(MathAbs(sl/tickSize-MathRound(sl/tickSize))>0.00001) return "STOP_TICK_SIZE";
    MqlTradeRequest checkRequest={};
    MqlTradeCheckResult checkResult={};
    checkRequest.action=TRADE_ACTION_DEAL;

@@ -130,3 +130,17 @@ def test_private_bot_and_close_transition():
     assert client.post("/api/ea/report", headers=headers, json=close).json()["duplicate"]
     with connect() as db:
         assert db.execute("SELECT profit FROM trades WHERE account_id=?", (account_id,)).fetchone()[0] == 5
+
+
+def test_bot_start_is_idempotent_and_stop_is_owned():
+    assert "Demo" in response_for(1001, 1001, "/start")
+    assert "Demo" in response_for(1001, 1001, "/start")
+    with connect() as db:
+        assert db.execute("SELECT COUNT(*) FROM users WHERE telegram_id=1001").fetchone()[0] == 1
+    u = core.register_user(1001, 1001)
+    account_id, _ = link(u)
+    with connect() as db:
+        db.execute("UPDATE risk_settings SET enabled=1 WHERE account_id=?", (account_id,))
+    assert "إيقاف" in response_for(1001, 1001, "/stop")
+    with connect() as db:
+        assert db.execute("SELECT enabled FROM risk_settings WHERE account_id=?", (account_id,)).fetchone()[0] == 0
