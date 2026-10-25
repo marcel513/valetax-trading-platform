@@ -1,5 +1,7 @@
 # تسليم المشروع والمتابعة من جهاز آخر
 
+> تحديث 26 أكتوبر 2026: اقرأ أيضًا [التسليم التفصيلي للمطور](DEVELOPER_HANDOVER_AR.md) و[برومبت المتابعة الكامل](CONTINUATION_PROMPT_AR.md). البوت الموجود هو [@ValetaxDemoPlatformBot](https://t.me/ValetaxDemoPlatformBot). جرى التحقق من هويته، لكن الخدمة المحلية القديمة لم تكن تعمل وقت المراجعة. نتائج MT5 أدناه تاريخية من 25 سبتمبر. طلب ELDOC10 اللاحق لم يُنفذ بعد، وملفاته الأصلية خاصة خارج المستودع العام.
+
 ## الحالة التي تم التحقق منها
 
 - المستودع العام: <https://github.com/marcel513/valetax-trading-platform>، والفرع الأساسي `main`.
@@ -23,7 +25,7 @@
    py -m venv .venv
    .\.venv\Scripts\Activate.ps1
    python -m pip install -r requirements.txt
-   python -m pytest -q
+   python -m pytest tests -q
    ```
 
 2. إن أردت تطوير الكود فقط، تكفي الاختبارات ولا حاجة إلى رمز بوت أو MT5. لتشغيل نسخة محلية مستقلة، انسخ `.env.example` إلى `.env` واملأ القيم محليًا، ثم اتبع [README](../README.md). لا تنسخ `.env` إلى GitHub.
